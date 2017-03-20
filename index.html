@@ -1,0 +1,144 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" href="http://tdn.totvs.com/s/pt_BR/5791/812a9b95d028838dafa0cb0b1f30f9320f96e54f.27/_/favicon.ico" type="image/x-icon">
+
+    <title>Fábrica de Software TOTVS-MT</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.7.7/xlsx.core.min.js"></script> -->
+
+    <!-- uncomment the next line here and in xlsxworker.js for encoding support -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.6/cpexcel.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.6/jszip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.6/xlsx.js"></script>
+    <!-- uncomment the next line here and in xlsxworker.js for ODS support -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.6/ods.js"></script>
+
+    <!--CDN BOOTSTRAP https://www.bootstrapcdn.com/ -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+
+    <!-- Referente aos estilos de upload de arquivo http://www.jasny.net/bootstrap/getting-started/ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jasny-bootstrap/3.1.3/js/jasny-bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jasny-bootstrap/3.1.3/css/jasny-bootstrap.min.css">
+
+</head>
+
+<body>
+    <script>
+        function handleFile(e) {
+            var files = e.target.files;
+            var i, f;
+
+            var link = document.getElementById('downloadlink');
+            link.style.display = 'none';
+
+
+            for (i = 0; i != files.length; ++i) {
+                f = files[i];
+                var reader = new FileReader();
+                var name = f.name;
+                reader.onload = function (e) {
+                    var data = e.target.result;
+
+                    var workbook;
+                    workbook = XLSX.read(data, { type: 'binary' });
+
+
+                    var first_sheet_name = workbook.SheetNames[0];
+                    var worksheet = workbook.Sheets[first_sheet_name];
+
+                    var textoArquivo = "";177
+
+                    var jsonRetorno = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                   
+                    console.log(jsonRetorno);
+
+                    jsonRetorno.forEach(function (arrayItem, i) {
+                        var x = arrayItem;
+                        textoArquivo += x[0] + " " + x[1] + " " + x[2] + "\r\n";
+                    });
+                    //console.log(textoArquivo);
+
+                    link.href = criaArquivoTexto(textoArquivo);
+                    link.style.display = 'block';
+                    link.download = "ArquivoGerado.txt";
+
+                };
+                reader.readAsBinaryString(f);
+            }
+        }
+
+
+
+        function criaArquivoTexto(text) {
+            //text = "file name" + "\r\n" + "Styling Code" + "\r\n" + text;
+            var textFile = null;
+            var data = new Blob([text], { type: 'text/plain' });
+
+            // If we are replacing a previously generated file we need to
+            // manually revoke the object URL to avoid memory leaks.
+            if (textFile !== null) {
+                window.URL.revokeObjectURL(textFile);
+            }
+
+            textFile = window.URL.createObjectURL(data);
+
+            return textFile;
+        };
+
+
+        //Change event to dropdownlist
+        $(document).ready(function () {
+            $('#files').change(handleFile);
+        });
+    </script>
+    <div class="container" style="padding-top: 30px;">
+        <div class="panel panel-primary" style="height:90%;">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-md-4 text-left panel-title">
+                        <h4>Fábrica de Software TOTVS-MT</h4>
+                    </div>
+                    <div class="col-md-8 text-right"><img class="img-responsive" style="float:right;" width="100px" height="60px" src="https://ecm.unisinos.br/josso/resources/totvs_logo.png"></img>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="fileinput fileinput-new input-group" data-provides="fileinput">
+                        <div class="form-control" data-trigger="fileinput">
+                            <i class="glyphicon glyphicon-file fileinput-exists"></i>
+                            <span class="fileinput-filename"></span>
+                        </div>
+                        <span class="input-group-addon btn btn-default btn-file">
+                        <span class="fileinput-new">
+                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span> Selecionar Arquivo
+                        </span>
+                        <span class="fileinput-exists">
+                             <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Trocar Arquivo
+                        </span>
+                        <input type="file" id="files" name="files">
+                        </span>
+                        <a href="#" class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Remover
+                        </a>
+                    </div>
+                </div>
+                <div class="btn-group" role="group">
+                    <a id="downloadlink" class="btn btn-success" style="display:none" download="info.txt" title="Baixar o arquivo .txt">
+                        <span class="glyphicon glyphicon-download" aria-hidden="true"></span> Download
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
